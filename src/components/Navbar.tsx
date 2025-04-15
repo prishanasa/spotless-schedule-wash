@@ -15,7 +15,7 @@ import {
   DropdownMenuSeparator, 
   DropdownMenuTrigger 
 } from "@/components/ui/dropdown-menu";
-import { Menu, User, LogOut } from "lucide-react";
+import { Menu, User, LogOut, Shield } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 
 interface NavbarProps {
@@ -70,7 +70,13 @@ const Navbar = ({ isLoggedIn: propIsLoggedIn, onLogin }: NavbarProps) => {
           <Link to="/" className="transition-colors hover:text-foreground/80 text-foreground/60">Home</Link>
           <Link to="/booking" className="transition-colors hover:text-foreground/80 text-foreground/60">Book a Slot</Link>
           {isLoggedIn && (
-            <Link to="/dashboard" className="transition-colors hover:text-foreground/80 text-foreground/60">Dashboard</Link>
+            <>
+              <Link to="/dashboard" className="transition-colors hover:text-foreground/80 text-foreground/60">Dashboard</Link>
+              <Link to="/admin" className="transition-colors hover:text-foreground/80 text-foreground/60 flex items-center">
+                <Shield className="h-3.5 w-3.5 mr-1" />
+                Admin
+              </Link>
+            </>
           )}
         </nav>
 
@@ -98,6 +104,12 @@ const Navbar = ({ isLoggedIn: propIsLoggedIn, onLogin }: NavbarProps) => {
                 <DropdownMenuSeparator />
                 <DropdownMenuItem asChild>
                   <Link to="/dashboard">Dashboard</Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link to="/admin" className="flex items-center">
+                    <Shield className="h-4 w-4 mr-2" />
+                    Admin
+                  </Link>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={handleLogout} className="text-red-600 cursor-pointer">
@@ -127,9 +139,17 @@ const Navbar = ({ isLoggedIn: propIsLoggedIn, onLogin }: NavbarProps) => {
                   <Link to="/booking" className="block py-2 text-lg font-medium">Book a Slot</Link>
                 </SheetClose>
                 {isLoggedIn && (
-                  <SheetClose asChild>
-                    <Link to="/dashboard" className="block py-2 text-lg font-medium">Dashboard</Link>
-                  </SheetClose>
+                  <>
+                    <SheetClose asChild>
+                      <Link to="/dashboard" className="block py-2 text-lg font-medium">Dashboard</Link>
+                    </SheetClose>
+                    <SheetClose asChild>
+                      <Link to="/admin" className="flex items-center py-2 text-lg font-medium">
+                        <Shield className="h-4 w-4 mr-2" />
+                        Admin
+                      </Link>
+                    </SheetClose>
+                  </>
                 )}
                 {!isLoggedIn ? (
                   <SheetClose asChild>
