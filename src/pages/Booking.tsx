@@ -1,17 +1,28 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { useToast } from "@/components/ui/use-toast";
 import { Calendar } from "@/components/ui/calendar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { format } from "date-fns";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/context/AuthContext";
+import { Tables } from "@/integrations/supabase/types";
 
-// Simulated backend data
-const timeSlots = [
+type Service = Tables<"services">;
+type Machine = Tables<"machines">;
+
+type TimeSlot = {
+  id: number;
+  time: string;
+};
+
+// Simulated time slots data
+const timeSlots: TimeSlot[] = [
   { id: 1, time: "08:00 - 09:00" },
   { id: 2, time: "09:00 - 10:00" },
   { id: 3, time: "10:00 - 11:00" },
@@ -22,47 +33,128 @@ const timeSlots = [
   { id: 8, time: "16:00 - 17:00" },
 ];
 
-const services = [
-  { id: 1, name: "Regular Wash", price: 5 },
-  { id: 2, name: "Heavy Duty Wash", price: 8 },
-  { id: 3, name: "Delicate Wash", price: 7 },
-  { id: 4, name: "Express Wash", price: 10 },
-];
-
 const Booking = () => {
   const { toast } = useToast();
+  const navigate = useNavigate();
+  const { user } = useAuth();
   const [date, setDate] = useState<Date | undefined>(new Date());
   const [selectedSlot, setSelectedSlot] = useState<number | null>(null);
-  const [selectedService, setSelectedService] = useState<string>("1");
-  const [isLoggedIn, setIsLoggedIn] = useState(true);
+  const [selectedService, setSelectedService] = useState<string>("");
+  const [selectedMachine, setSelectedMachine] = useState<string>("");
+  const [services, setServices] = useState<Service[]>([]);
+  const [machines, setMachines] = useState<Machine[]>([]);
+  const [loading, setLoading] = useState(false);
+  
+  // Fetch services and machines from Supabase
+  useEffect(() => {
+    const fetchServicesAndMachines = async () => {
+      try {
+        const { data: servicesData, error: servicesError } = await supabase
+          .from("services")
+          .select("*");
+        
+        if (servicesError) throw servicesError;
+        setServices(servicesData || []);
+        
+        if (servicesData && servicesData.length > 0) {
+          setSelectedService(servicesData[0].id.toString());
+        }
+        
+        const { data: machinesData, error: machinesError } = await supabase
+          .from("machines")
+          .select("*");
+        
+        if (machinesError) throw machinesError;
+        setMachines(machinesData || []);
+        
+        if (machinesData && machinesData.length > 0) {
+          setSelectedMachine(machinesData[0].id);
+        }
+      } catch (error: any) {
+        toast({
+          title: "Error fetching data",
+          description: error.message,
+          variant: "destructive",
+        });
+      }
+    };
+    
+    fetchServicesAndMachines();
+  }, [toast]);
+  
+  // Redirect to login if not authenticated
+  useEffect(() => {
+    if (user === null) {
+      toast({
+        title: "Authentication required",
+        description: "Please log in to book a laundry slot",
+      });
+      navigate("/auth");
+    }
+  }, [user, navigate, toast]);
 
-  const handleLogin = () => {
-    setIsLoggedIn(true);
-  };
-
-  const handleBooking = () => {
-    if (!date || !selectedSlot) {
+  const handleBooking = async () => {
+    if (!user) {
+      toast({
+        title: "Authentication required",
+        description: "Please log in to book a laundry slot",
+      });
+      navigate("/auth");
+      return;
+    }
+    
+    if (!date || !selectedSlot || !selectedService || !selectedMachine) {
       toast({
         title: "Error",
-        description: "Please select a date and time slot",
+        description: "Please select a date, time slot, service, and machine",
         variant: "destructive",
       });
       return;
     }
 
-    // Simulate booking submission
-    const selectedServiceData = services.find(s => s.id.toString() === selectedService);
-    const selectedSlotData = timeSlots.find(s => s.id === selectedSlot);
+    setLoading(true);
     
-    toast({
-      title: "Booking successful!",
-      description: `You have booked ${selectedServiceData?.name} on ${format(date, "PPP")} at ${selectedSlotData?.time}`,
-    });
+    try {
+      // Get selected service name
+      const service = services.find(s => s.id.toString() === selectedService);
+      const selectedSlotData = timeSlots.find(s => s.id === selectedSlot);
+      
+      // Insert booking data into Supabase
+      const { data, error } = await supabase
+        .from("bookings")
+        .insert({
+          user_id: user.id,
+          service_type: service?.name || "",
+          booking_date: format(date, "yyyy-MM-dd"),
+          time_slot: selectedSlotData?.time || "",
+          machine_id: selectedMachine,
+          status: "Upcoming"
+        })
+        .select();
+      
+      if (error) throw error;
+      
+      toast({
+        title: "Booking successful!",
+        description: `You have booked ${service?.name} on ${format(date, "PPP")} at ${selectedSlotData?.time}`,
+      });
+      
+      // Redirect to dashboard after successful booking
+      navigate("/dashboard");
+    } catch (error: any) {
+      toast({
+        title: "Error creating booking",
+        description: error.message,
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
-      <Navbar isLoggedIn={isLoggedIn} onLogin={handleLogin} />
+      <Navbar isLoggedIn={!!user} onLogin={() => navigate("/auth")} />
       
       <div className="flex-1 container py-8">
         <h1 className="text-3xl font-bold text-laundry-700 mb-6">Book a Laundry Slot</h1>
@@ -79,6 +171,7 @@ const Booking = () => {
                 selected={date}
                 onSelect={setDate}
                 className="border rounded-md"
+                disabled={(date) => date < new Date()}
               />
             </CardContent>
           </Card>
@@ -98,6 +191,27 @@ const Booking = () => {
                     {services.map(service => (
                       <SelectItem key={service.id} value={service.id.toString()}>
                         {service.name} (${service.price})
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </CardContent>
+            </Card>
+            
+            <Card>
+              <CardHeader>
+                <CardTitle>Select Machine</CardTitle>
+                <CardDescription>Choose a machine for your laundry</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <Select value={selectedMachine} onValueChange={setSelectedMachine}>
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Select a machine" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {machines.map(machine => (
+                      <SelectItem key={machine.id} value={machine.id}>
+                        {machine.name} ({machine.type})
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -128,8 +242,9 @@ const Booking = () => {
                 <Button 
                   onClick={handleBooking} 
                   className="w-full bg-laundry-500 hover:bg-laundry-600"
+                  disabled={loading}
                 >
-                  Book Now
+                  {loading ? "Processing..." : "Book Now"}
                 </Button>
               </CardFooter>
             </Card>

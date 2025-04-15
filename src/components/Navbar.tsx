@@ -1,5 +1,4 @@
 
-import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { 
@@ -17,19 +16,27 @@ import {
   DropdownMenuTrigger 
 } from "@/components/ui/dropdown-menu";
 import { Menu, User, LogOut } from "lucide-react";
+import { useAuth } from "@/context/AuthContext";
 
 interface NavbarProps {
   isLoggedIn: boolean;
   onLogin: () => void;
 }
 
-const Navbar = ({ isLoggedIn, onLogin }: NavbarProps) => {
+const Navbar = ({ isLoggedIn: propIsLoggedIn, onLogin }: NavbarProps) => {
   const navigate = useNavigate();
+  const { user, signOut } = useAuth();
   
-  const handleLogout = () => {
-    // In a real app, you'd clear auth state here
+  // Use the authenticated state from context instead of props
+  const isLoggedIn = user !== null;
+  
+  const handleLogin = () => {
+    navigate("/auth");
+  };
+
+  const handleLogout = async () => {
+    await signOut();
     navigate("/");
-    window.location.reload();
   };
 
   return (
@@ -69,7 +76,7 @@ const Navbar = ({ isLoggedIn, onLogin }: NavbarProps) => {
 
         <div className="hidden md:flex items-center space-x-2">
           {!isLoggedIn ? (
-            <Button onClick={onLogin} className="bg-laundry-500 hover:bg-laundry-600">
+            <Button onClick={handleLogin} className="bg-laundry-500 hover:bg-laundry-600">
               Log In
             </Button>
           ) : (
@@ -84,7 +91,7 @@ const Navbar = ({ isLoggedIn, onLogin }: NavbarProps) => {
                   <div className="flex flex-col space-y-1">
                     <p className="text-sm font-medium leading-none">User</p>
                     <p className="text-xs leading-none text-muted-foreground">
-                      user@example.com
+                      {user?.email}
                     </p>
                   </div>
                 </DropdownMenuLabel>
@@ -125,14 +132,18 @@ const Navbar = ({ isLoggedIn, onLogin }: NavbarProps) => {
                   </SheetClose>
                 )}
                 {!isLoggedIn ? (
-                  <Button onClick={() => { onLogin(); }} className="bg-laundry-500 hover:bg-laundry-600 mt-4">
-                    Log In
-                  </Button>
+                  <SheetClose asChild>
+                    <Button onClick={handleLogin} className="bg-laundry-500 hover:bg-laundry-600 mt-4">
+                      Log In
+                    </Button>
+                  </SheetClose>
                 ) : (
-                  <Button onClick={handleLogout} variant="destructive" className="mt-4">
-                    <LogOut className="mr-2 h-4 w-4" />
-                    <span>Log out</span>
-                  </Button>
+                  <SheetClose asChild>
+                    <Button onClick={handleLogout} variant="destructive" className="mt-4">
+                      <LogOut className="mr-2 h-4 w-4" />
+                      <span>Log out</span>
+                    </Button>
+                  </SheetClose>
                 )}
               </nav>
             </SheetContent>

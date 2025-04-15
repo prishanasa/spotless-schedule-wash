@@ -9,7 +9,105 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      bookings: {
+        Row: {
+          booking_date: string
+          created_at: string
+          id: string
+          machine_id: string
+          service_type: string
+          status: string
+          time_slot: string
+          user_id: string
+        }
+        Insert: {
+          booking_date: string
+          created_at?: string
+          id?: string
+          machine_id: string
+          service_type: string
+          status?: string
+          time_slot: string
+          user_id: string
+        }
+        Update: {
+          booking_date?: string
+          created_at?: string
+          id?: string
+          machine_id?: string
+          service_type?: string
+          status?: string
+          time_slot?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      machines: {
+        Row: {
+          id: string
+          name: string
+          status: string
+          type: string
+        }
+        Insert: {
+          id: string
+          name: string
+          status?: string
+          type: string
+        }
+        Update: {
+          id?: string
+          name?: string
+          status?: string
+          type?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          created_at: string
+          email: string | null
+          full_name: string | null
+          id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          email?: string | null
+          full_name?: string | null
+          id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          email?: string | null
+          full_name?: string | null
+          id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      services: {
+        Row: {
+          description: string | null
+          id: number
+          name: string
+          price: number
+        }
+        Insert: {
+          description?: string | null
+          id?: number
+          name: string
+          price: number
+        }
+        Update: {
+          description?: string | null
+          id?: number
+          name?: string
+          price?: number
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
