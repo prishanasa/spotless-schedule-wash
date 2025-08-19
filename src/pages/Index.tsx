@@ -2,9 +2,9 @@
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/components/ui/use-toast";
 import Navbar from "@/components/Navbar";
-import Hero from "@/components/Hero";
-import ServicesList from "@/components/ServicesList";
-import HowItWorks from "@/components/HowItWorks";
+import NewHero from "@/components/NewHero";
+import LiveMachineStatus from "@/components/LiveMachineStatus";
+import NewHowItWorks from "@/components/NewHowItWorks";
 import Footer from "@/components/Footer";
 import { useAuth } from "@/context/AuthContext";
 
@@ -21,9 +21,11 @@ const Index = () => {
     <div className="min-h-screen bg-background">
       <Navbar isLoggedIn={!!user} onLogin={handleLogin} />
       <main>
-        <Hero />
-        <ServicesList />
-        <HowItWorks />
+        <NewHero />
+        <div id="live-status">
+          <LiveMachineStatus />
+        </div>
+        <NewHowItWorks />
       </main>
       <Footer />
     </div>

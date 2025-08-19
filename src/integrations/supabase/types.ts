@@ -55,26 +55,82 @@ export type Database = {
           },
         ]
       }
+      laundry_orders: {
+        Row: {
+          actual_completion: string | null
+          created_at: string
+          estimated_completion: string | null
+          id: string
+          machine_id: string
+          machine_type: Database["public"]["Enums"]["machine_type"]
+          service_type: string
+          status: Database["public"]["Enums"]["order_status"]
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          actual_completion?: string | null
+          created_at?: string
+          estimated_completion?: string | null
+          id?: string
+          machine_id: string
+          machine_type: Database["public"]["Enums"]["machine_type"]
+          service_type: string
+          status?: Database["public"]["Enums"]["order_status"]
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          actual_completion?: string | null
+          created_at?: string
+          estimated_completion?: string | null
+          id?: string
+          machine_id?: string
+          machine_type?: Database["public"]["Enums"]["machine_type"]
+          service_type?: string
+          status?: Database["public"]["Enums"]["order_status"]
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       machines: {
         Row: {
+          current_order_id: string | null
           id: string
+          is_active: boolean | null
+          location: string | null
           name: string
           status: string
           type: string
         }
         Insert: {
+          current_order_id?: string | null
           id: string
+          is_active?: boolean | null
+          location?: string | null
           name: string
           status?: string
           type: string
         }
         Update: {
+          current_order_id?: string | null
           id?: string
+          is_active?: boolean | null
+          location?: string | null
           name?: string
           status?: string
           type?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "machines_current_order_id_fkey"
+            columns: ["current_order_id"]
+            isOneToOne: false
+            referencedRelation: "laundry_orders"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       profiles: {
         Row: {
@@ -82,6 +138,10 @@ export type Database = {
           email: string | null
           full_name: string | null
           id: string
+          phone: string | null
+          role: Database["public"]["Enums"]["user_role"] | null
+          room_number: string | null
+          student_id: string | null
           updated_at: string
         }
         Insert: {
@@ -89,6 +149,10 @@ export type Database = {
           email?: string | null
           full_name?: string | null
           id: string
+          phone?: string | null
+          role?: Database["public"]["Enums"]["user_role"] | null
+          room_number?: string | null
+          student_id?: string | null
           updated_at?: string
         }
         Update: {
@@ -96,6 +160,10 @@ export type Database = {
           email?: string | null
           full_name?: string | null
           id?: string
+          phone?: string | null
+          role?: Database["public"]["Enums"]["user_role"] | null
+          room_number?: string | null
+          student_id?: string | null
           updated_at?: string
         }
         Relationships: []
@@ -129,7 +197,14 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      machine_type: "washer" | "dryer"
+      order_status:
+        | "queued"
+        | "washing"
+        | "drying"
+        | "ready_for_pickup"
+        | "completed"
+      user_role: "student" | "admin"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -256,6 +331,16 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      machine_type: ["washer", "dryer"],
+      order_status: [
+        "queued",
+        "washing",
+        "drying",
+        "ready_for_pickup",
+        "completed",
+      ],
+      user_role: ["student", "admin"],
+    },
   },
 } as const

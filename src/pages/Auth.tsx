@@ -29,6 +29,7 @@ const Auth = () => {
         email,
         password,
         options: {
+          emailRedirectTo: `${window.location.origin}/`,
           data: {
             full_name: fullName,
           }
@@ -38,10 +39,25 @@ const Auth = () => {
       if (error) throw error;
 
       if (data.user) {
+        // Create profile entry
+        const { error: profileError } = await supabase
+          .from('profiles')
+          .insert({
+            id: data.user.id,
+            email: data.user.email,
+            full_name: fullName,
+            role: 'student'
+          });
+
+        if (profileError) {
+          console.error('Profile creation error:', profileError);
+        }
+
         toast({
           title: "Account created successfully",
-          description: "You can now log in with your credentials",
+          description: "Welcome to Hostel LaundryLink!",
         });
+        navigate("/dashboard");
       }
     } catch (error: any) {
       toast({
@@ -68,10 +84,10 @@ const Auth = () => {
 
       toast({
         title: "Logged in successfully",
-        description: "Welcome back to WashWise!",
+        description: "Welcome back to Hostel LaundryLink!",
       });
       
-      navigate("/");
+      navigate("/dashboard");
     } catch (error: any) {
       toast({
         title: "Error signing in",
@@ -92,7 +108,7 @@ const Auth = () => {
           <Tabs defaultValue="signin">
             <CardHeader>
               <div className="flex items-center justify-between">
-                <CardTitle className="text-2xl">Welcome to WashWise</CardTitle>
+                <CardTitle className="text-2xl">Welcome to Hostel LaundryLink</CardTitle>
                 <TabsList>
                   <TabsTrigger value="signin">Sign In</TabsTrigger>
                   <TabsTrigger value="signup">Sign Up</TabsTrigger>
