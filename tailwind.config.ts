@@ -54,16 +54,23 @@ export default {
 					foreground: 'hsl(var(--card-foreground))'
 				},
 				laundry: {
-					50: '#EFF6FF',
-					100: '#DBEAFE',
-					200: '#BFDBFE',
-					300: '#93C5FD',
-					400: '#60A5FA',
-					500: '#4A90E2', // primary light blue
-					600: '#2563EB',
-					700: '#194175', // darker blue
-					800: '#1E40AF',
-					900: '#1E3A8A',
+					50: '#FDF2F8',
+					100: '#FCE7F3',
+					200: '#FBCFE8',
+					300: '#F9A8D4',
+					400: '#F472B6',
+					500: '#EC4899', // vibrant pink
+					600: '#DB2777',
+					700: '#BE185D',
+					800: '#9D174D',
+					900: '#831843',
+				},
+				vibrant: {
+					purple: '#8B5CF6',
+					green: '#10B981',
+					orange: '#F59E0B',
+					blue: '#3B82F6',
+					pink: '#EC4899',
 				},
 				sidebar: {
 					DEFAULT: 'hsl(var(--sidebar-background))',

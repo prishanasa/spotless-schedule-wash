@@ -7,27 +7,48 @@ const Hero = () => {
   const navigate = useNavigate();
 
   return (
-    <section className="py-16 md:py-24 bg-gradient-to-b from-white to-laundry-50">
+    <section className="py-20 md:py-32 bg-gradient-to-br from-background via-secondary/30 to-accent/10">
       <div className="container px-4 md:px-6">
-        <div className="grid gap-6 lg:grid-cols-2 lg:gap-12 items-center">
-          <div className="space-y-4">
-            <h1 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl">
-              Smart Laundry Management Made <span className="text-laundry-500">Simple</span>
+        <div className="grid gap-8 lg:grid-cols-2 lg:gap-12 items-center">
+          <div className="space-y-6">
+            <div className="inline-block">
+              <span className="px-4 py-2 bg-primary/10 text-primary rounded-full text-sm font-medium">
+                🎉 Say goodbye to laundry day stress!
+              </span>
+            </div>
+            <h1 className="text-4xl font-bold tracking-tight sm:text-5xl md:text-6xl lg:text-7xl">
+              Never Wait for a 
+              <span className="block bg-gradient-to-r from-primary via-accent to-vibrant-green bg-clip-text text-transparent animate-pulse">
+                Washing Machine
+              </span>
+              Again! 🚀
             </h1>
-            <p className="text-gray-500 md:text-xl">
-              Book your laundry slots with ease. Save time, avoid queues, and get real-time updates on your laundry status.
+            <p className="text-muted-foreground text-lg md:text-xl leading-relaxed">
+              Tired of carrying heavy baskets only to find all machines occupied? We get it! 
+              Book your perfect time slot in seconds and waltz in knowing your machine is ready and waiting. ✨
             </p>
-            <div className="flex flex-col sm:flex-row gap-3">
+            <div className="flex flex-col sm:flex-row gap-4">
               <Button 
                 onClick={() => navigate("/booking")} 
-                className="bg-laundry-500 hover:bg-laundry-600"
+                className="bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90 text-white shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
                 size="lg"
               >
-                <Calendar className="mr-2 h-4 w-4" /> Book a Slot
+                <Calendar className="mr-2 h-5 w-5" /> 
+                Book My Slot Now!
               </Button>
-              <Button variant="outline" size="lg">
-                Learn More <ArrowRight className="ml-2 h-4 w-4" />
+              <Button variant="outline" size="lg" className="border-primary/20 hover:bg-primary/5 hover:border-primary/40">
+                See How It Works <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
+            </div>
+            <div className="flex items-center gap-6 pt-4">
+              <div className="flex items-center gap-2">
+                <div className="w-3 h-3 bg-accent rounded-full animate-pulse"></div>
+                <span className="text-sm text-muted-foreground">200+ happy students</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-3 h-3 bg-primary rounded-full animate-pulse"></div>
+                <span className="text-sm text-muted-foreground">Zero waiting time</span>
+              </div>
             </div>
           </div>
           <div className="relative lg:ml-auto">
