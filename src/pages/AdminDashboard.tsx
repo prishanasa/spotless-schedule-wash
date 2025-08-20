@@ -8,9 +8,11 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import { Shield, Users, Package, AlertCircle, RefreshCw } from "lucide-react";
+import { AdminAnalytics } from "@/components/AdminAnalytics";
+import { Shield, Users, Package, AlertCircle, RefreshCw, BarChart3 } from "lucide-react";
 import { format } from "date-fns";
 
 interface LaundryOrder {
@@ -242,123 +244,136 @@ const AdminDashboard = () => {
           </Card>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {/* Active Orders Management */}
-          <div className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Package className="h-5 w-5" />
-                  Active Laundry Orders
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                {activeOrders.length > 0 ? (
-                  <div className="space-y-4">
-                    {activeOrders.map((order) => (
-                      <div key={order.id} className="border rounded-lg p-4">
-                        <div className="flex justify-between items-start mb-3">
-                          <div>
-                            <h4 className="font-semibold">
-                              {order.profiles?.full_name || 'Unknown Student'}
-                            </h4>
-                            <p className="text-sm text-muted-foreground">
-                              {order.profiles?.email}
-                            </p>
-                            <p className="text-sm font-medium mt-1">
-                              Machine {order.machine_id} • {order.service_type}
+        <Tabs defaultValue="dashboard" className="space-y-6">
+          <TabsList className="grid w-full grid-cols-2">
+            <TabsTrigger value="dashboard">Dashboard</TabsTrigger>
+            <TabsTrigger value="analytics">Analytics</TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="dashboard" className="space-y-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+              {/* Active Orders Management */}
+              <div className="space-y-6">
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <Package className="h-5 w-5" />
+                      Active Laundry Orders
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    {activeOrders.length > 0 ? (
+                      <div className="space-y-4">
+                        {activeOrders.map((order) => (
+                          <div key={order.id} className="border rounded-lg p-4">
+                            <div className="flex justify-between items-start mb-3">
+                              <div>
+                                <h4 className="font-semibold">
+                                  {order.profiles?.full_name || 'Unknown Student'}
+                                </h4>
+                                <p className="text-sm text-muted-foreground">
+                                  {order.profiles?.email}
+                                </p>
+                                <p className="text-sm font-medium mt-1">
+                                  Machine {order.machine_id} • {order.service_type}
+                                </p>
+                              </div>
+                              <Badge className={`${getStatusColor(order.status)} text-white`}>
+                                {order.status.replace('_', ' ').toUpperCase()}
+                              </Badge>
+                            </div>
+                            
+                            <div className="flex items-center gap-2">
+                              <Select
+                                value={order.status}
+                                onValueChange={(value) => updateOrderStatus(order.id, value)}
+                                disabled={updating === order.id}
+                              >
+                                <SelectTrigger className="w-48">
+                                  <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="queued">Queued</SelectItem>
+                                  <SelectItem value="washing">Washing</SelectItem>
+                                  <SelectItem value="drying">Drying</SelectItem>
+                                  <SelectItem value="ready_for_pickup">Ready for Pickup</SelectItem>
+                                  <SelectItem value="completed">Completed</SelectItem>
+                                </SelectContent>
+                              </Select>
+                              
+                              {updating === order.id && (
+                                <RefreshCw className="h-4 w-4 animate-spin" />
+                              )}
+                            </div>
+                            
+                            <p className="text-xs text-muted-foreground mt-2">
+                              Started: {format(new Date(order.created_at), "PPpp")}
                             </p>
                           </div>
-                          <Badge className={`${getStatusColor(order.status)} text-white`}>
-                            {order.status.replace('_', ' ').toUpperCase()}
-                          </Badge>
-                        </div>
-                        
-                        <div className="flex items-center gap-2">
-                          <Select
-                            value={order.status}
-                            onValueChange={(value) => updateOrderStatus(order.id, value)}
-                            disabled={updating === order.id}
-                          >
-                            <SelectTrigger className="w-48">
-                              <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="queued">Queued</SelectItem>
-                              <SelectItem value="washing">Washing</SelectItem>
-                              <SelectItem value="drying">Drying</SelectItem>
-                              <SelectItem value="ready_for_pickup">Ready for Pickup</SelectItem>
-                              <SelectItem value="completed">Completed</SelectItem>
-                            </SelectContent>
-                          </Select>
-                          
-                          {updating === order.id && (
-                            <RefreshCw className="h-4 w-4 animate-spin" />
-                          )}
-                        </div>
-                        
-                        <p className="text-xs text-muted-foreground mt-2">
-                          Started: {format(new Date(order.created_at), "PPpp")}
-                        </p>
+                        ))}
                       </div>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="text-center py-8">
-                    <Package className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                    <p className="text-muted-foreground">No active orders</p>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-          </div>
+                    ) : (
+                      <div className="text-center py-8">
+                        <Package className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                        <p className="text-muted-foreground">No active orders</p>
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+              </div>
 
-          {/* User Management */}
-          <div>
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Users className="h-5 w-5" />
-                  User Management
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>Student</TableHead>
-                        <TableHead>Email</TableHead>
-                        <TableHead>Joined</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {allUsers.filter(u => u.role === 'student').slice(0, 8).map((user) => (
-                        <TableRow key={user.id}>
-                          <TableCell className="font-medium">
-                            {user.full_name || 'Unknown'}
-                          </TableCell>
-                          <TableCell className="text-sm text-muted-foreground">
-                            {user.email}
-                          </TableCell>
-                          <TableCell className="text-sm">
-                            {format(new Date(user.created_at), "MMM dd, yyyy")}
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                  
-                  {allUsers.length > 8 && (
-                    <p className="text-sm text-muted-foreground text-center">
-                      Showing 8 of {allUsers.length} users
-                    </p>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        </div>
+              {/* User Management */}
+              <div>
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <Users className="h-5 w-5" />
+                      User Management
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-4">
+                      <Table>
+                        <TableHeader>
+                          <TableRow>
+                            <TableHead>Student</TableHead>
+                            <TableHead>Email</TableHead>
+                            <TableHead>Joined</TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          {allUsers.filter(u => u.role === 'student').slice(0, 8).map((user) => (
+                            <TableRow key={user.id}>
+                              <TableCell className="font-medium">
+                                {user.full_name || 'Unknown'}
+                              </TableCell>
+                              <TableCell className="text-sm text-muted-foreground">
+                                {user.email}
+                              </TableCell>
+                              <TableCell className="text-sm">
+                                {format(new Date(user.created_at), "MMM dd, yyyy")}
+                              </TableCell>
+                            </TableRow>
+                          ))}
+                        </TableBody>
+                      </Table>
+                      
+                      {allUsers.length > 8 && (
+                        <p className="text-sm text-muted-foreground text-center">
+                          Showing 8 of {allUsers.length} users
+                        </p>
+                      )}
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+            </div>
+          </TabsContent>
+
+          <TabsContent value="analytics">
+            <AdminAnalytics />
+          </TabsContent>
+        </Tabs>
       </div>
       
       <Footer />

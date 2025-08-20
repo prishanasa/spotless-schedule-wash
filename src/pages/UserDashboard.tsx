@@ -6,9 +6,14 @@ import { useToast } from "@/components/ui/use-toast";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import { CalendarCheck, Clock, Package, Bell, User, Plus } from "lucide-react";
+import { WalletSystem } from "@/components/WalletSystem";
+import { QRCodeScanner } from "@/components/QRScanner";
+import { NotificationCenter } from "@/components/NotificationCenter";
+import { BookingHistory } from "@/components/BookingHistory";
+import { CalendarCheck, Clock, Package, Bell, User, Plus, Wallet, QrCode } from "lucide-react";
 import { format } from "date-fns";
 
 interface LaundryOrder {
@@ -162,133 +167,161 @@ const UserDashboard = () => {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Current Order Status */}
-          <div className="lg:col-span-2">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Package className="h-5 w-5" />
-                  My Laundry Status
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                {currentOrder ? (
-                  <div className="space-y-4">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <h3 className="font-semibold text-lg capitalize">
-                          {currentOrder.service_type} • Machine {currentOrder.machine_id}
-                        </h3>
-                        <p className="text-muted-foreground">
-                          Started {format(new Date(currentOrder.created_at), "PPpp")}
-                        </p>
-                      </div>
-                      <Badge className={`${getStatusColor(currentOrder.status)} text-white flex items-center gap-1`}>
-                        {getStatusIcon(currentOrder.status)}
-                        {currentOrder.status.replace('_', ' ').toUpperCase()}
-                      </Badge>
-                    </div>
-                    
-                    <div className="w-full bg-gray-200 rounded-full h-2">
-                      <div 
-                        className={`h-2 rounded-full transition-all duration-300 ${getStatusColor(currentOrder.status)}`}
-                        style={{
-                          width: currentOrder.status === 'queued' ? '25%' :
-                                 currentOrder.status === 'washing' ? '50%' :
-                                 currentOrder.status === 'drying' ? '75%' :
-                                 currentOrder.status === 'ready_for_pickup' ? '100%' : '0%'
-                        }}
-                      ></div>
-                    </div>
-                    
-                    <div className="flex justify-between text-sm text-muted-foreground">
-                      <span>Queued</span>
-                      <span>Washing</span>
-                      <span>Drying</span>
-                      <span>Ready</span>
-                    </div>
+        <Tabs defaultValue="dashboard" className="space-y-6">
+          <TabsList className="grid w-full grid-cols-5">
+            <TabsTrigger value="dashboard">Dashboard</TabsTrigger>
+            <TabsTrigger value="wallet">Wallet</TabsTrigger>
+            <TabsTrigger value="scanner">QR Scanner</TabsTrigger>
+            <TabsTrigger value="bookings">Bookings</TabsTrigger>
+            <TabsTrigger value="notifications">Notifications</TabsTrigger>
+          </TabsList>
 
-                    {currentOrder.estimated_completion && (
-                      <div className="mt-4 p-3 bg-muted/30 rounded-lg">
-                        <p className="text-sm">
-                          <strong>Estimated completion:</strong> {format(new Date(currentOrder.estimated_completion), "PPpp")}
+          <TabsContent value="dashboard" className="space-y-6">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              {/* Current Order Status */}
+              <div className="lg:col-span-2">
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <Package className="h-5 w-5" />
+                      My Laundry Status
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    {currentOrder ? (
+                      <div className="space-y-4">
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <h3 className="font-semibold text-lg capitalize">
+                              {currentOrder.service_type} • Machine {currentOrder.machine_id}
+                            </h3>
+                            <p className="text-muted-foreground">
+                              Started {format(new Date(currentOrder.created_at), "PPpp")}
+                            </p>
+                          </div>
+                          <Badge className={`${getStatusColor(currentOrder.status)} text-white flex items-center gap-1`}>
+                            {getStatusIcon(currentOrder.status)}
+                            {currentOrder.status.replace('_', ' ').toUpperCase()}
+                          </Badge>
+                        </div>
+                        
+                        <div className="w-full bg-gray-200 rounded-full h-2">
+                          <div 
+                            className={`h-2 rounded-full transition-all duration-300 ${getStatusColor(currentOrder.status)}`}
+                            style={{
+                              width: currentOrder.status === 'queued' ? '25%' :
+                                     currentOrder.status === 'washing' ? '50%' :
+                                     currentOrder.status === 'drying' ? '75%' :
+                                     currentOrder.status === 'ready_for_pickup' ? '100%' : '0%'
+                            }}
+                          ></div>
+                        </div>
+                        
+                        <div className="flex justify-between text-sm text-muted-foreground">
+                          <span>Queued</span>
+                          <span>Washing</span>
+                          <span>Drying</span>
+                          <span>Ready</span>
+                        </div>
+
+                        {currentOrder.estimated_completion && (
+                          <div className="mt-4 p-3 bg-muted/30 rounded-lg">
+                            <p className="text-sm">
+                              <strong>Estimated completion:</strong> {format(new Date(currentOrder.estimated_completion), "PPpp")}
+                            </p>
+                          </div>
+                        )}
+                      </div>
+                    ) : (
+                      <div className="text-center py-8">
+                        <Package className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                        <h3 className="font-semibold text-lg mb-2">No Active Laundry Orders</h3>
+                        <p className="text-muted-foreground mb-4">
+                          You don't have any laundry orders in progress
                         </p>
+                        <Button onClick={() => navigate("/booking")} className="flex items-center gap-2">
+                          <Plus className="h-4 w-4" />
+                          Book New Slot
+                        </Button>
                       </div>
                     )}
-                  </div>
-                ) : (
-                  <div className="text-center py-8">
-                    <Package className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                    <h3 className="font-semibold text-lg mb-2">No Active Laundry Orders</h3>
-                    <p className="text-muted-foreground mb-4">
-                      You don't have any laundry orders in progress
-                    </p>
-                    <Button onClick={() => navigate("/booking")} className="flex items-center gap-2">
+                  </CardContent>
+                </Card>
+              </div>
+
+              {/* Quick Actions */}
+              <div className="space-y-6">
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Quick Actions</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-3">
+                    <Button 
+                      onClick={() => navigate("/booking")} 
+                      className="w-full flex items-center gap-2"
+                    >
                       <Plus className="h-4 w-4" />
-                      Book New Slot
+                      Book New Laundry Slot
                     </Button>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-          </div>
+                    <Button 
+                      variant="outline" 
+                      onClick={() => navigate("/")} 
+                      className="w-full"
+                    >
+                      Check Machine Status
+                    </Button>
+                  </CardContent>
+                </Card>
 
-          {/* Quick Actions */}
-          <div className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>Quick Actions</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                <Button 
-                  onClick={() => navigate("/booking")} 
-                  className="w-full flex items-center gap-2"
-                >
-                  <Plus className="h-4 w-4" />
-                  Book New Laundry Slot
-                </Button>
-                <Button 
-                  variant="outline" 
-                  onClick={() => navigate("/")} 
-                  className="w-full"
-                >
-                  Check Machine Status
-                </Button>
-              </CardContent>
-            </Card>
-
-            {/* Recent Orders */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Recent Orders</CardTitle>
-              </CardHeader>
-              <CardContent>
-                {recentOrders.length > 0 ? (
-                  <div className="space-y-3">
-                    {recentOrders.map((order) => (
-                      <div key={order.id} className="flex justify-between items-center p-2 rounded border">
-                        <div>
-                          <p className="font-medium text-sm capitalize">{order.service_type}</p>
-                          <p className="text-xs text-muted-foreground">
-                            {format(new Date(order.created_at), "MMM dd")}
-                          </p>
-                        </div>
-                        <Badge variant="outline" className="text-xs">
-                          Completed
-                        </Badge>
+                {/* Recent Orders */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Recent Orders</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    {recentOrders.length > 0 ? (
+                      <div className="space-y-3">
+                        {recentOrders.map((order) => (
+                          <div key={order.id} className="flex justify-between items-center p-2 rounded border">
+                            <div>
+                              <p className="font-medium text-sm capitalize">{order.service_type}</p>
+                              <p className="text-xs text-muted-foreground">
+                                {format(new Date(order.created_at), "MMM dd")}
+                              </p>
+                            </div>
+                            <Badge variant="outline" className="text-xs">
+                              Completed
+                            </Badge>
+                          </div>
+                        ))}
                       </div>
-                    ))}
-                  </div>
-                ) : (
-                  <p className="text-muted-foreground text-sm text-center py-4">
-                    No recent orders
-                  </p>
-                )}
-              </CardContent>
-            </Card>
-          </div>
-        </div>
+                    ) : (
+                      <p className="text-muted-foreground text-sm text-center py-4">
+                        No recent orders
+                      </p>
+                    )}
+                  </CardContent>
+                </Card>
+              </div>
+            </div>
+          </TabsContent>
+
+          <TabsContent value="wallet">
+            <WalletSystem />
+          </TabsContent>
+
+          <TabsContent value="scanner">
+            <QRCodeScanner />
+          </TabsContent>
+
+          <TabsContent value="bookings">
+            <BookingHistory />
+          </TabsContent>
+
+          <TabsContent value="notifications">
+            <NotificationCenter />
+          </TabsContent>
+        </Tabs>
       </div>
       
       <Footer />

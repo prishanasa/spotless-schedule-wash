@@ -115,9 +115,25 @@ const Booking = () => {
     setLoading(true);
     
     try {
-      // Get selected service name
+      // Get selected service name and cost
       const service = services.find(s => s.id.toString() === selectedService);
       const selectedSlotData = timeSlots.find(s => s.id === selectedSlot);
+      const bookingCost = service?.cost || 0;
+
+      // Check wallet balance
+      const { data: walletData, error: walletError } = await supabase
+        .from('user_wallets')
+        .select('*')
+        .eq('user_id', user.id)
+        .single();
+
+      if (walletError || !walletData) {
+        throw new Error('Wallet not found. Please contact support.');
+      }
+
+      if (walletData.balance < bookingCost) {
+        throw new Error(`Insufficient wallet balance. You need ₹${bookingCost} but have ₹${walletData.balance.toFixed(2)}`);
+      }
       
       // Insert booking data into Supabase
       const { data, error } = await supabase
@@ -128,9 +144,36 @@ const Booking = () => {
           booking_date: format(date, "yyyy-MM-dd"),
           time_slot: selectedSlotData?.time || "",
           machine_id: selectedMachine,
-          status: "Upcoming"
+          status: "Upcoming",
+          cost: bookingCost
         })
         .select();
+
+      if (error) throw error;
+
+      // Deduct cost from wallet and create transaction
+      const newBalance = walletData.balance - bookingCost;
+      
+      const { error: walletUpdateError } = await supabase
+        .from('user_wallets')
+        .update({ balance: newBalance })
+        .eq('id', walletData.id);
+
+      if (walletUpdateError) throw walletUpdateError;
+
+      // Create transaction record
+      const { error: transactionError } = await supabase
+        .from('wallet_transactions')
+        .insert({
+          user_id: user.id,
+          wallet_id: walletData.id,
+          type: 'debit',
+          amount: bookingCost,
+          description: `Booking: ${service?.name} on ${format(date, "PPP")}`,
+          booking_id: data[0].id
+        });
+
+      if (transactionError) throw transactionError;
       
       if (error) throw error;
       

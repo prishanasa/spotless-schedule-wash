@@ -17,6 +17,7 @@ export type Database = {
       bookings: {
         Row: {
           booking_date: string
+          cost: number | null
           created_at: string
           id: string
           machine_id: string
@@ -27,6 +28,7 @@ export type Database = {
         }
         Insert: {
           booking_date: string
+          cost?: number | null
           created_at?: string
           id?: string
           machine_id: string
@@ -37,6 +39,7 @@ export type Database = {
         }
         Update: {
           booking_date?: string
+          cost?: number | null
           created_at?: string
           id?: string
           machine_id?: string
@@ -101,6 +104,7 @@ export type Database = {
           is_active: boolean | null
           location: string | null
           name: string
+          qr_code: string | null
           status: string
           type: string
         }
@@ -110,6 +114,7 @@ export type Database = {
           is_active?: boolean | null
           location?: string | null
           name: string
+          qr_code?: string | null
           status?: string
           type: string
         }
@@ -119,6 +124,7 @@ export type Database = {
           is_active?: boolean | null
           location?: string | null
           name?: string
+          qr_code?: string | null
           status?: string
           type?: string
         }
@@ -131,6 +137,39 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      notifications: {
+        Row: {
+          created_at: string | null
+          id: string
+          message: string
+          read_at: string | null
+          sent_at: string | null
+          title: string
+          type: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          message: string
+          read_at?: string | null
+          sent_at?: string | null
+          title: string
+          type: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          message?: string
+          read_at?: string | null
+          sent_at?: string | null
+          title?: string
+          type?: string
+          user_id?: string
+        }
+        Relationships: []
       }
       profiles: {
         Row: {
@@ -170,24 +209,99 @@ export type Database = {
       }
       services: {
         Row: {
+          cost: number | null
           description: string | null
           id: number
           name: string
           price: number
         }
         Insert: {
+          cost?: number | null
           description?: string | null
           id?: number
           name: string
           price: number
         }
         Update: {
+          cost?: number | null
           description?: string | null
           id?: number
           name?: string
           price?: number
         }
         Relationships: []
+      }
+      user_wallets: {
+        Row: {
+          balance: number | null
+          created_at: string | null
+          id: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          balance?: number | null
+          created_at?: string | null
+          id?: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          balance?: number | null
+          created_at?: string | null
+          id?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      wallet_transactions: {
+        Row: {
+          amount: number
+          booking_id: string | null
+          created_at: string | null
+          description: string | null
+          id: string
+          type: string
+          user_id: string
+          wallet_id: string
+        }
+        Insert: {
+          amount: number
+          booking_id?: string | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          type: string
+          user_id: string
+          wallet_id: string
+        }
+        Update: {
+          amount?: number
+          booking_id?: string | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          type?: string
+          user_id?: string
+          wallet_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "wallet_transactions_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: false
+            referencedRelation: "bookings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "wallet_transactions_wallet_id_fkey"
+            columns: ["wallet_id"]
+            isOneToOne: false
+            referencedRelation: "user_wallets"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {
