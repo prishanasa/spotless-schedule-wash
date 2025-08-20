@@ -57,6 +57,8 @@ const Auth = () => {
           title: "Account created successfully",
           description: "Welcome to Hostel LaundryLink!",
         });
+        
+        // Navigate to appropriate dashboard based on role
         navigate("/dashboard");
       }
     } catch (error: any) {
@@ -82,12 +84,24 @@ const Auth = () => {
 
       if (error) throw error;
 
+      // Get user profile to determine role
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('role')
+        .eq('id', data.user.id)
+        .single();
+
       toast({
         title: "Logged in successfully",
         description: "Welcome back to Hostel LaundryLink!",
       });
       
-      navigate("/dashboard");
+      // Navigate to appropriate dashboard based on role
+      if (profile?.role === 'admin') {
+        navigate("/admin");
+      } else {
+        navigate("/dashboard");
+      }
     } catch (error: any) {
       toast({
         title: "Error signing in",
