@@ -294,6 +294,13 @@ export type Database = {
             foreignKeyName: "wallet_transactions_booking_id_fkey"
             columns: ["booking_id"]
             isOneToOne: false
+            referencedRelation: "booking_analytics"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "wallet_transactions_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: false
             referencedRelation: "bookings"
             referencedColumns: ["id"]
           },
@@ -308,7 +315,39 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      booking_analytics: {
+        Row: {
+          booking_date: string | null
+          cost: number | null
+          created_at: string | null
+          full_name: string | null
+          id: string | null
+          machine_id: string | null
+          room_number: string | null
+          service_type: string | null
+          status: string | null
+          time_slot: string | null
+          user_email: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bookings_machine_id_fkey"
+            columns: ["machine_id"]
+            isOneToOne: false
+            referencedRelation: "machines"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      booking_summary: {
+        Row: {
+          service_type: string | null
+          total_bookings: number | null
+          total_revenue: number | null
+          unique_users: number | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       [_ in never]: never
