@@ -294,13 +294,6 @@ export type Database = {
             foreignKeyName: "wallet_transactions_booking_id_fkey"
             columns: ["booking_id"]
             isOneToOne: false
-            referencedRelation: "booking_analytics"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "wallet_transactions_booking_id_fkey"
-            columns: ["booking_id"]
-            isOneToOne: false
             referencedRelation: "bookings"
             referencedColumns: ["id"]
           },
@@ -329,15 +322,7 @@ export type Database = {
           time_slot: string | null
           user_email: string | null
         }
-        Relationships: [
-          {
-            foreignKeyName: "bookings_machine_id_fkey"
-            columns: ["machine_id"]
-            isOneToOne: false
-            referencedRelation: "machines"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       booking_summary: {
         Row: {
@@ -350,7 +335,31 @@ export type Database = {
       }
     }
     Functions: {
-      [_ in never]: never
+      get_booking_analytics: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          booking_date: string
+          cost: number
+          created_at: string
+          full_name: string
+          id: string
+          machine_id: string
+          room_number: string
+          service_type: string
+          status: string
+          time_slot: string
+          user_email: string
+        }[]
+      }
+      get_booking_summary: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          service_type: string
+          total_bookings: number
+          total_revenue: number
+          unique_users: number
+        }[]
+      }
     }
     Enums: {
       machine_type: "washer" | "dryer"
