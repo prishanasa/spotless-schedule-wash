@@ -120,26 +120,21 @@ const Booking = () => {
       const selectedSlotData = timeSlots.find(s => s.id === selectedSlot);
       const bookingCost = service?.cost || 0;
 
-      // Check wallet balance
-      const { data: walletData, error: walletError } = await supabase
-        .from('user_wallets')
-        .select('*')
-        .eq('user_id', user.id)
+      // Get user email for booking record
+      const { data: profile, error: profileError } = await supabase
+        .from('profiles')
+        .select('email')
+        .eq('id', user.id)
         .single();
 
-      if (walletError || !walletData) {
-        throw new Error('Wallet not found. Please contact support.');
-      }
-
-      if (walletData.balance < bookingCost) {
-        throw new Error(`Insufficient wallet balance. You need ₹${bookingCost} but have ₹${walletData.balance.toFixed(2)}`);
-      }
+      const userEmail = profile?.email || user.email || 'No email';
       
       // Insert booking data into Supabase
       const { data, error } = await supabase
         .from("bookings")
         .insert({
           user_id: user.id,
+          user_email: userEmail,
           service_type: service?.name || "",
           booking_date: format(date, "yyyy-MM-dd"),
           time_slot: selectedSlotData?.time || "",
@@ -150,30 +145,6 @@ const Booking = () => {
         .select();
 
       if (error) throw error;
-
-      // Deduct cost from wallet and create transaction
-      const newBalance = walletData.balance - bookingCost;
-      
-      const { error: walletUpdateError } = await supabase
-        .from('user_wallets')
-        .update({ balance: newBalance })
-        .eq('id', walletData.id);
-
-      if (walletUpdateError) throw walletUpdateError;
-
-      // Create transaction record
-      const { error: transactionError } = await supabase
-        .from('wallet_transactions')
-        .insert({
-          user_id: user.id,
-          wallet_id: walletData.id,
-          type: 'debit',
-          amount: bookingCost,
-          description: `Booking: ${service?.name} on ${format(date, "PPP")}`,
-          booking_id: data[0].id
-        });
-
-      if (transactionError) throw transactionError;
       
       if (error) throw error;
       
@@ -200,7 +171,7 @@ const Booking = () => {
       <Navbar isLoggedIn={!!user} onLogin={() => navigate("/auth")} />
       
       <div className="flex-1 container py-8">
-        <h1 className="text-3xl font-bold text-laundry-700 mb-6">Book a Laundry Slot</h1>
+        <h1 className="text-3xl font-bold text-primary mb-6">Book a Laundry Slot</h1>
         
         <div className="grid md:grid-cols-2 gap-8">
           <Card>
@@ -273,7 +244,6 @@ const Booking = () => {
                     <Button
                       key={slot.id}
                       variant={selectedSlot === slot.id ? "default" : "outline"}
-                      className={selectedSlot === slot.id ? "bg-laundry-500 text-white" : ""}
                       onClick={() => setSelectedSlot(slot.id)}
                     >
                       {slot.time}
@@ -284,7 +254,7 @@ const Booking = () => {
               <CardFooter>
                 <Button 
                   onClick={handleBooking} 
-                  className="w-full bg-laundry-500 hover:bg-laundry-600"
+                  className="w-full"
                   disabled={loading}
                 >
                   {loading ? "Processing..." : "Book Now"}
