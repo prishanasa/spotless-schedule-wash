@@ -1,7 +1,7 @@
 
 
 ## Project info
-URL-https://spotless-schedule-wash-wjvh.vercel.app/
+LIVE URL-https://spotless-schedule-wash-wjvh.vercel.app/
 
 
 ## What technologies are used for this project?
