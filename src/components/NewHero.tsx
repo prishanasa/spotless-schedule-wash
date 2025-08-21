@@ -16,7 +16,7 @@ const NewHero = () => {
               </span>
             </div>
             <h1 className="text-4xl font-bold tracking-tight sm:text-5xl md:text-6xl lg:text-7xl">
-              Hostel LaundryLink: 
+              Hostel LaundryMate: 
               <span className="block bg-gradient-to-r from-primary via-accent to-vibrant-green bg-clip-text text-transparent">
                 Never Wait for Your Laundry Again
               </span>

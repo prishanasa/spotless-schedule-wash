@@ -9,11 +9,9 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import { WalletSystem } from "@/components/WalletSystem";
-import { QRCodeScanner } from "@/components/QRScanner";
 import { NotificationCenter } from "@/components/NotificationCenter";
 import { BookingHistory } from "@/components/BookingHistory";
-import { CalendarCheck, Clock, Package, Bell, User, Plus, Wallet, QrCode } from "lucide-react";
+import { CalendarCheck, Clock, Package, Bell, User, Plus } from "lucide-react";
 import { format } from "date-fns";
 
 interface LaundryOrder {
@@ -168,10 +166,8 @@ const UserDashboard = () => {
         </div>
 
         <Tabs defaultValue="dashboard" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-5">
+          <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="dashboard">Dashboard</TabsTrigger>
-            <TabsTrigger value="wallet">Wallet</TabsTrigger>
-            <TabsTrigger value="scanner">QR Scanner</TabsTrigger>
             <TabsTrigger value="bookings">Bookings</TabsTrigger>
             <TabsTrigger value="notifications">Notifications</TabsTrigger>
           </TabsList>
@@ -306,13 +302,6 @@ const UserDashboard = () => {
             </div>
           </TabsContent>
 
-          <TabsContent value="wallet">
-            <WalletSystem />
-          </TabsContent>
-
-          <TabsContent value="scanner">
-            <QRCodeScanner />
-          </TabsContent>
 
           <TabsContent value="bookings">
             <BookingHistory />

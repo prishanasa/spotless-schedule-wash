@@ -60,7 +60,7 @@ const Navbar = ({ isLoggedIn: propIsLoggedIn, onLogin }: NavbarProps) => {
                 <circle cx="12" cy="12" r="4" />
                 <path d="m16 16-1-1" />
               </svg>
-              <span className="ml-2 text-xl font-bold text-laundry-700">Hostel LaundryLink</span>
+              <span className="ml-2 text-xl font-bold text-laundry-700">Hostel LaundryMate</span>
             </div>
           </Link>
         </div>
