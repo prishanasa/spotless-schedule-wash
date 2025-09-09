@@ -308,31 +308,7 @@ export type Database = {
       }
     }
     Views: {
-      booking_analytics: {
-        Row: {
-          booking_date: string | null
-          cost: number | null
-          created_at: string | null
-          full_name: string | null
-          id: string | null
-          machine_id: string | null
-          room_number: string | null
-          service_type: string | null
-          status: string | null
-          time_slot: string | null
-          user_email: string | null
-        }
-        Relationships: []
-      }
-      booking_summary: {
-        Row: {
-          service_type: string | null
-          total_bookings: number | null
-          total_revenue: number | null
-          unique_users: number | null
-        }
-        Relationships: []
-      }
+      [_ in never]: never
     }
     Functions: {
       get_booking_analytics: {
