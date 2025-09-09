@@ -13,4 +13,7 @@ This project is built with:
 - shadcn-ui
 - Tailwind CSS
 
+With a clean and simple interface, you can: 
+
+✅ See machine availability instantly from your room. ✅ Book a guaranteed time slot in seconds. ✅ Eliminate queues and arguments for good.
 
