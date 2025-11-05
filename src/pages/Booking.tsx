@@ -8,7 +8,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import { format } from "date-fns";
+import { format, isSameDay, addHours } from "date-fns";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/context/AuthContext";
 import { Tables } from "@/integrations/supabase/types";
@@ -92,6 +92,30 @@ const Booking = () => {
       navigate("/auth");
     }
   }, [user, navigate, toast]);
+
+  // Helper function to check if a time slot is available for booking
+  const isSlotAvailable = (slot: TimeSlot, selectedDate: Date | undefined): boolean => {
+    if (!selectedDate) return false;
+    
+    const now = new Date();
+    const isToday = isSameDay(selectedDate, now);
+    
+    // If not today, all slots are available
+    if (!isToday) return true;
+    
+    // Extract start hour from slot time (e.g., "08:00 - 09:00" -> 8)
+    const slotStartHour = parseInt(slot.time.split(":")[0]);
+    
+    // Create a date object for the slot start time today
+    const slotDateTime = new Date();
+    slotDateTime.setHours(slotStartHour, 0, 0, 0);
+    
+    // Minimum booking time is 1 hour from now
+    const minBookingTime = addHours(now, 1);
+    
+    // Slot is available if it starts at least 1 hour from now
+    return slotDateTime >= minBookingTime;
+  };
 
   const handleBooking = async () => {
     if (!user) {
@@ -240,15 +264,20 @@ const Booking = () => {
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-2 gap-2">
-                  {timeSlots.map(slot => (
-                    <Button
-                      key={slot.id}
-                      variant={selectedSlot === slot.id ? "default" : "outline"}
-                      onClick={() => setSelectedSlot(slot.id)}
-                    >
-                      {slot.time}
-                    </Button>
-                  ))}
+                  {timeSlots.map(slot => {
+                    const isAvailable = isSlotAvailable(slot, date);
+                    return (
+                      <Button
+                        key={slot.id}
+                        variant={selectedSlot === slot.id ? "default" : "outline"}
+                        onClick={() => setSelectedSlot(slot.id)}
+                        disabled={!isAvailable}
+                        className={!isAvailable ? "opacity-50 cursor-not-allowed" : ""}
+                      >
+                        {slot.time}
+                      </Button>
+                    );
+                  })}
                 </div>
               </CardContent>
               <CardFooter>
