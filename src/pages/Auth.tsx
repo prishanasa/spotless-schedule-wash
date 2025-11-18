@@ -119,27 +119,25 @@ const Auth = () => {
       
       <div className="flex-1 container py-12 flex items-center justify-center">
         <Card className="w-full max-w-md">
-          <Tabs defaultValue="signin">
+          <Tabs defaultValue="user-signin">
             <CardHeader>
-              <div className="flex items-center justify-between">
-                <CardTitle className="text-2xl">Welcome to Hostel LaundryLink</CardTitle>
-                <TabsList>
-                  <TabsTrigger value="signin">Sign In</TabsTrigger>
-                  <TabsTrigger value="signup">Sign Up</TabsTrigger>
-                </TabsList>
-              </div>
-              <CardDescription>
-                Manage your laundry bookings with ease
+              <CardTitle className="text-2xl text-center mb-4">Welcome to Hostel LaundryLink</CardTitle>
+              <CardDescription className="text-center mb-4">
+                Choose your login type
               </CardDescription>
+              <TabsList className="grid w-full grid-cols-2 mb-4">
+                <TabsTrigger value="user-signin">User Login</TabsTrigger>
+                <TabsTrigger value="admin-signin">Admin Login</TabsTrigger>
+              </TabsList>
             </CardHeader>
             
             <CardContent>
-              <TabsContent value="signin">
+              <TabsContent value="user-signin">
                 <form onSubmit={handleSignIn} className="space-y-4">
                   <div className="space-y-2">
-                    <Label htmlFor="email">Email</Label>
+                    <Label htmlFor="user-email">Email</Label>
                     <Input
-                      id="email"
+                      id="user-email"
                       type="email"
                       placeholder="Enter your email"
                       value={email}
@@ -149,9 +147,9 @@ const Auth = () => {
                   </div>
                   
                   <div className="space-y-2">
-                    <Label htmlFor="password">Password</Label>
+                    <Label htmlFor="user-password">Password</Label>
                     <Input
-                      id="password"
+                      id="user-password"
                       type="password"
                       placeholder="Enter your password"
                       value={password}
@@ -165,12 +163,58 @@ const Auth = () => {
                     className="w-full bg-laundry-500 hover:bg-laundry-600"
                     disabled={loading}
                   >
-                    {loading ? "Signing in..." : "Sign In"}
+                    {loading ? "Signing in as User..." : "Sign In as User"}
                   </Button>
+                  <p className="text-sm text-center text-muted-foreground mt-2">
+                    Don't have an account? <button type="button" onClick={() => {}} className="text-laundry-500 hover:underline">Sign up below</button>
+                  </p>
+                </form>
+              </TabsContent>
+
+              <TabsContent value="admin-signin">
+                <form onSubmit={handleSignIn} className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="admin-email">Admin Email</Label>
+                    <Input
+                      id="admin-email"
+                      type="email"
+                      placeholder="Enter admin email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      required
+                    />
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="admin-password">Admin Password</Label>
+                    <Input
+                      id="admin-password"
+                      type="password"
+                      placeholder="Enter admin password"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      required
+                    />
+                  </div>
+                  
+                  <Button 
+                    type="submit" 
+                    className="w-full bg-laundry-500 hover:bg-laundry-600"
+                    disabled={loading}
+                  >
+                    {loading ? "Signing in as Admin..." : "Sign In as Admin"}
+                  </Button>
+                  <p className="text-sm text-center text-muted-foreground mt-2">
+                    Admin access only
+                  </p>
                 </form>
               </TabsContent>
               
-              <TabsContent value="signup">
+              <TabsContent value="signup" className="mt-6">
+                <div className="mb-4">
+                  <h3 className="text-lg font-semibold text-center">Create User Account</h3>
+                  <p className="text-sm text-center text-muted-foreground">Sign up to book laundry slots</p>
+                </div>
                 <form onSubmit={handleSignUp} className="space-y-4">
                   <div className="space-y-2">
                     <Label htmlFor="fullName">Full Name</Label>
@@ -185,9 +229,9 @@ const Auth = () => {
                   </div>
                   
                   <div className="space-y-2">
-                    <Label htmlFor="email">Email</Label>
+                    <Label htmlFor="signup-email">Email</Label>
                     <Input
-                      id="email"
+                      id="signup-email"
                       type="email"
                       placeholder="Enter your email"
                       value={email}
@@ -197,9 +241,9 @@ const Auth = () => {
                   </div>
                   
                   <div className="space-y-2">
-                    <Label htmlFor="password">Password</Label>
+                    <Label htmlFor="signup-password">Password</Label>
                     <Input
-                      id="password"
+                      id="signup-password"
                       type="password"
                       placeholder="Enter your password (min. 6 characters)"
                       value={password}
@@ -214,7 +258,7 @@ const Auth = () => {
                     className="w-full bg-laundry-500 hover:bg-laundry-600"
                     disabled={loading}
                   >
-                    {loading ? "Creating account..." : "Sign Up"}
+                    {loading ? "Creating account..." : "Sign Up as User"}
                   </Button>
                 </form>
               </TabsContent>

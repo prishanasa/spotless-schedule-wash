@@ -312,7 +312,7 @@ export type Database = {
     }
     Functions: {
       get_booking_analytics: {
-        Args: Record<PropertyKey, never>
+        Args: never
         Returns: {
           booking_date: string
           cost: number
@@ -328,7 +328,7 @@ export type Database = {
         }[]
       }
       get_booking_summary: {
-        Args: Record<PropertyKey, never>
+        Args: never
         Returns: {
           service_type: string
           total_bookings: number
