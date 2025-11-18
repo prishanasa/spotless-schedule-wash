@@ -44,6 +44,7 @@ const AdminDashboard = () => {
   const [activeOrders, setActiveOrders] = useState<any[]>([]);
   const [allUsers, setAllUsers] = useState<Profile[]>([]);
   const [updating, setUpdating] = useState<string | null>(null);
+  const [pendingBookings, setPendingBookings] = useState<any[]>([]);
 
   useEffect(() => {
     if (!user) {
@@ -96,6 +97,19 @@ const AdminDashboard = () => {
           setAllUsers(usersData || []);
         }
 
+        // Fetch pending bookings
+        const { data: bookingsData, error: bookingsError } = await supabase
+          .from('bookings')
+          .select(`
+            *,
+            profiles!inner(full_name, email)
+          `)
+          .order('created_at', { ascending: false });
+
+        if (!bookingsError) {
+          setPendingBookings(bookingsData || []);
+        }
+
       } catch (error) {
         console.error('Error fetching admin data:', error);
         toast({
@@ -130,6 +144,44 @@ const AdminDashboard = () => {
       supabase.removeChannel(channel);
     };
   }, [user, navigate, toast]);
+
+  const updateBookingStatus = async (bookingId: string, newStatus: string) => {
+    setUpdating(bookingId);
+    try {
+      const { error } = await supabase
+        .from('bookings')
+        .update({ status: newStatus })
+        .eq('id', bookingId);
+
+      if (error) throw error;
+
+      toast({
+        title: "Booking status updated",
+        description: `Booking has been ${newStatus.toLowerCase()}`,
+      });
+
+      // Refresh bookings
+      const { data: bookingsData } = await supabase
+        .from('bookings')
+        .select(`
+          *,
+          profiles!inner(full_name, email)
+        `)
+        .order('created_at', { ascending: false });
+
+      if (bookingsData) {
+        setPendingBookings(bookingsData);
+      }
+    } catch (error: any) {
+      toast({
+        title: "Error updating booking",
+        description: error.message,
+        variant: "destructive",
+      });
+    } finally {
+      setUpdating(null);
+    }
+  };
 
   const updateOrderStatus = async (orderId: string, newStatus: string) => {
     setUpdating(orderId);
@@ -244,11 +296,99 @@ const AdminDashboard = () => {
           </Card>
         </div>
 
-        <Tabs defaultValue="dashboard" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="dashboard">Dashboard</TabsTrigger>
+        <Tabs defaultValue="bookings" className="space-y-6">
+          <TabsList className="grid w-full grid-cols-3">
+            <TabsTrigger value="bookings">Booking Approvals</TabsTrigger>
+            <TabsTrigger value="dashboard">Active Orders</TabsTrigger>
             <TabsTrigger value="analytics">Analytics</TabsTrigger>
           </TabsList>
+
+          <TabsContent value="bookings" className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Package className="h-5 w-5" />
+                  Recent Bookings
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Student</TableHead>
+                      <TableHead>Service</TableHead>
+                      <TableHead>Machine</TableHead>
+                      <TableHead>Date & Time</TableHead>
+                      <TableHead>Status</TableHead>
+                      <TableHead>Actions</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {pendingBookings.length > 0 ? (
+                      pendingBookings.map((booking) => (
+                        <TableRow key={booking.id}>
+                          <TableCell>
+                            <div>
+                              <p className="font-medium">{booking.profiles?.full_name || 'Unknown'}</p>
+                              <p className="text-sm text-muted-foreground">{booking.profiles?.email}</p>
+                            </div>
+                          </TableCell>
+                          <TableCell>{booking.service_type}</TableCell>
+                          <TableCell>{booking.machine_id}</TableCell>
+                          <TableCell>
+                            <div>
+                              <p>{format(new Date(booking.booking_date), 'MMM dd, yyyy')}</p>
+                              <p className="text-sm text-muted-foreground">{booking.time_slot}</p>
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            <Badge variant={booking.status === 'Approved' ? 'default' : booking.status === 'Rejected' ? 'destructive' : 'secondary'}>
+                              {booking.status}
+                            </Badge>
+                          </TableCell>
+                          <TableCell>
+                            <div className="flex gap-2">
+                              {booking.status === 'Upcoming' && (
+                                <>
+                                  <Button
+                                    size="sm"
+                                    variant="default"
+                                    onClick={() => updateBookingStatus(booking.id, 'Approved')}
+                                    disabled={updating === booking.id}
+                                  >
+                                    Approve
+                                  </Button>
+                                  <Button
+                                    size="sm"
+                                    variant="destructive"
+                                    onClick={() => updateBookingStatus(booking.id, 'Rejected')}
+                                    disabled={updating === booking.id}
+                                  >
+                                    Reject
+                                  </Button>
+                                </>
+                              )}
+                              {booking.status !== 'Upcoming' && (
+                                <span className="text-sm text-muted-foreground">
+                                  {booking.status === 'Approved' ? 'Approved' : 'Rejected'}
+                                </span>
+                              )}
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      ))
+                    ) : (
+                      <TableRow>
+                        <TableCell colSpan={6} className="text-center text-muted-foreground">
+                          No bookings found
+                        </TableCell>
+                      </TableRow>
+                    )}
+                  </TableBody>
+                </Table>
+              </CardContent>
+            </Card>
+          </TabsContent>
 
           <TabsContent value="dashboard" className="space-y-6">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
