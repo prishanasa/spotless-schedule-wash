@@ -3,9 +3,10 @@
     "target": "ES2022",
     "lib": ["ES2023"],
     "module": "ESNext",
-    "skipLibCheck": false,
+    "skipLibCheck": true,
 
-    /* Bundler mode */
+    
+   /* Bundler mode */
     "moduleResolution": "bundler",
     "allowImportingTsExtensions": true,
     "isolatedModules": true,
